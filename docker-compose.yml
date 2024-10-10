@@ -1,0 +1,43 @@
+#spring boot archestration
+volumes:
+  immocfadb:
+
+networks:
+  spimmonetwork:
+
+services:
+
+  # container spring
+  springimmo:
+    build:
+      context: ./
+    container_name: immo
+    ports:
+      - "8181:8181"
+      - "35729:35729"
+    volumes:
+      - ./app:/app
+      - ./gradle-cache:/root/.gradle
+    depends_on:
+      - db
+    networks:
+      - spimmonetwork
+    tty: true
+
+  db:
+    image: mariadb:latest
+    container_name: mdb
+    ports:
+      - "3314:3306"
+    environment:
+      MARIADB_ROOT_PASSWORD: admin2024
+      MARIADB_DATABASE: immo
+      MARIADB_USER: immocfa
+      MARIADB_PASSWORD: admin2024
+    command:
+      --default-authentication-plugin=mysql_native_password
+    restart: always
+    volumes:
+      - immocfadb:/var/lib/mysql
+    networks:
+      - spimmonetwork
